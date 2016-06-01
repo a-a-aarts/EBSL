@@ -9,27 +9,35 @@ namespace EBSL
     class Ebsl
     {
         OpinionMatrix matrix;
+        float threshhold { get; set; } = 0.1f;
 
-        public Ebsl(Dictionary<Tuple<int, int>, Tuple<int, int>> evidence)
+        public Ebsl(Tuple<Dictionary<Tuple<int, int>, Evidence>, int>[] evidence)
         {
-            matrix = new OpinionMatrix(evidence.Max(x => Math.Max(x.Key.Item1, x.Key.Item2)) + 1);
-            foreach (KeyValuePair<Tuple<int, int>, Tuple<int, int>> kv in evidence)
+            matrix = new OpinionMatrix(evidence.Max(x => x.Item1.Max(y => Math.Max(y.Key.Item1, y.Key.Item2))) + 1);
+            foreach(var d in evidence)
             {
-                matrix[kv.Key.Item1, kv.Key.Item2] = new Opinion(kv.Value.Item1, kv.Value.Item2, 2);
+                foreach(var kv in d.Item1)
+                {
+                    int x = kv.Key.Item1;
+                    int y = kv.Key.Item2;
+                    matrix[x, y] = Opinion.Consensus(matrix[x, y], kv.Value.ToOpinion(d.Item2));
+                }
             }
         }
 
-        public void run()
+        public void run(float restart)
         {
             int count = 0;
             OpinionMatrix A = matrix.Clone() as OpinionMatrix;
+            A.Scale(restart);
+
             do
             {
                 Console.WriteLine("iteration " + count);
-                /*matrix =*/ matrix.Iterate(A);
+                matrix = matrix.Iterate(A);
                 count++;
-            } while (count < 100 && !matrix.converged);
-            //matrix.ToFile("testsave2");
+            } while (count < 200 && !matrix.converged);
+            matrix.ToFile("save" + DateTime.UtcNow);
         }
 
 

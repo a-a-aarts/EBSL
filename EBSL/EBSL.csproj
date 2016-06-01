@@ -47,6 +47,7 @@
   <ItemGroup>
     <Compile Include="Dataparser.cs" />
     <Compile Include="Ebsl.cs" />
+    <Compile Include="Evidence.cs" />
     <Compile Include="Opinion.cs" />
     <Compile Include="OpinionMatrix.cs" />
     <Compile Include="Program.cs" />

@@ -11,8 +11,8 @@ namespace EBSL
         static void Main(string[] args)
         {
             Opinion.g = (x => (float)Math.Sqrt(x.b));
-            Ebsl e = new Ebsl(Dataparser.parseToEvidence(@"..\..\..\Data\test.txt"));
-            e.run();
+            Ebsl e = new Ebsl(new Tuple<Dictionary<Tuple<int, int>, Evidence>, int>[] { new Tuple<Dictionary<Tuple<int, int>, Evidence>, int>( Dataparser.parseMBToEvidence(@"..\..\..\Data\Dataset.txt", true), 2) });
+            e.run(1f);
             /*
             OpinionMatrix a = OpinionMatrix.FromFile("testsave");
             OpinionMatrix b = OpinionMatrix.FromFile("testsave2");

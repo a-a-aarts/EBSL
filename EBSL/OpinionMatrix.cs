@@ -11,7 +11,9 @@ namespace EBSL
 {
     class OpinionMatrix : ICloneable
     {
-        float snapshot = 0F;
+        public int eq = 0;
+
+        float Threshhold { get; set; } = 0.1F;
         int size = 0;
         public bool converged = false;
 
@@ -21,6 +23,7 @@ namespace EBSL
         protected HashSet<int>[] ys;
 
         private object l = new object();
+        private ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
 
         public OpinionMatrix(int size)
         {
@@ -69,31 +72,37 @@ namespace EBSL
                 {
                     lock(l)
                     {
-                        snapshot += Math.Abs(this[x, y].b - value.b) + Math.Abs(this[x, y].d - value.d) + Math.Abs(this[x, y].u - value.u);
                         matrix[new Tuple<int, int>(x, y)] = value;
                         xs[x].Add(y);
                         ys[y].Add(x);
                     }
                 }
-                /*else
+                else
                 {
                     matrix.Remove(new Tuple<int, int>(x, y));
 
-                }*/
+                }
             }
         }
 
-        public /*OpinionMatrix*/ void Iterate(OpinionMatrix A)
+        public void Scale(float f)
+        {
+            foreach(Tuple<int,int> t in matrix.Keys.ToList())
+            {
+                int x = t.Item1;
+                int y = t.Item2;
+                this[x, y] = Opinion.Scalar(f, this[x, y]);
+            }
+        }
+
+        public OpinionMatrix Iterate(OpinionMatrix A)
         {
             OpinionMatrix R = this;
-            //OpinionMatrix R_new = this.Clone() as OpinionMatrix;
-
+            OpinionMatrix R_new = this.Clone() as OpinionMatrix;
             for (int i = 0; i < size; i++)
             {
                 Parallel.For(0, size, ((j) =>
                 {
-                    //for (int j = 0; j < size; j++)
-                    //{
                     List<Opinion> sum = new List<Opinion>();
                     foreach (int k in A.ys[j])
                     {
@@ -104,12 +113,13 @@ namespace EBSL
                     }
                     if (sum.Count > 0)
                     {
-                        R/*_new*/[i, j] = Opinion.Consensus(A[i, j], sum.Aggregate((a, b) => Opinion.Consensus(a, b)));
+                        R_new[i, j] = Opinion.Consensus(A[i, j], sum.Aggregate((a, b) => Opinion.Consensus(a, b)));
                     }
                 }));
             }
-            R/*_new*/.converged = Compare(R/*_new*/) < 1;
-            //return R_new;
+            R_new.converged = Compare(R_new) < Threshhold;
+            Console.WriteLine("nodes: " + R_new.matrix.Count);
+            return R_new;
         }
 
         public float Compare(OpinionMatrix o)
@@ -124,13 +134,27 @@ namespace EBSL
                 cors.Add(t);
             }
             float compare = 0f;
-            foreach(Tuple<int,int> t in cors)
+            
+            Parallel.ForEach(cors, t =>
             {
                 int x = t.Item1;
                 int y = t.Item2;
-                compare = Math.Max(Math.Abs(this[x, y].b - o[x,y].b) + Math.Abs(this[x, y].d - o[x, y].d) + Math.Abs(this[x, y].u - o[x, y].u), compare);
-            }
-            Console.WriteLine(compare);
+                float tmp = Math.Abs(this[x, y].b - o[x, y].b) + Math.Abs(this[x, y].d - o[x, y].d) + Math.Abs(this[x, y].u - o[x, y].u);
+                while (true)
+                {
+                    float tmpcompare = compare;
+                    if(compare < tmp)
+                    {
+                        Interlocked.CompareExchange(ref compare, tmp, tmpcompare);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+            });
+            Console.WriteLine("compare: " + compare);
             return compare;
         }
 
@@ -139,6 +163,8 @@ namespace EBSL
             return new OpinionMatrix(this.size, this.matrix, this.xs, this.ys);
         }
 
+
+        #region IO
         public static OpinionMatrix FromFile(string path)
         {
             byte[] file = File.ReadAllBytes(path);
@@ -182,5 +208,6 @@ namespace EBSL
                 file.Write(opinions, 0, opinions.Length);
             }
         }
+        #endregion
     }
 }
