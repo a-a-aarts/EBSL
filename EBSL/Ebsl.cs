@@ -9,11 +9,13 @@ namespace EBSL
     class Ebsl
     {
         OpinionMatrix matrix;
-        float threshhold { get; set; } = 0.1f;
+        public float Threshhold { get; set; } = 0.01f;
+        public string name { get; set; } = DateTime.Now.Day + "-" + DateTime.Now.Month + "_" + DateTime.Now.Hour + "-" + DateTime.Now.Minute;
 
         public Ebsl(Tuple<Dictionary<Tuple<int, int>, Evidence>, int>[] evidence)
         {
             matrix = new OpinionMatrix(evidence.Max(x => x.Item1.Max(y => Math.Max(y.Key.Item1, y.Key.Item2))) + 1);
+            matrix.Threshhold = Threshhold;
             foreach(var d in evidence)
             {
                 foreach(var kv in d.Item1)
@@ -37,7 +39,7 @@ namespace EBSL
                 matrix = matrix.Iterate(A);
                 count++;
             } while (count < 200 && !matrix.converged);
-            matrix.ToFile("save" + DateTime.UtcNow);
+            matrix.ToFile(name + "_r_" + restart + ".ebsl");
         }
 
 

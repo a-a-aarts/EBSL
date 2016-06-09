@@ -13,7 +13,7 @@ namespace EBSL
     {
         public int eq = 0;
 
-        float Threshhold { get; set; } = 0.1F;
+        public float Threshhold { get; set; } = 0.01F;
         int size = 0;
         public bool converged = false;
 
@@ -21,9 +21,8 @@ namespace EBSL
 
         protected HashSet<int>[] xs;
         protected HashSet<int>[] ys;
-
         private object l = new object();
-        private ReaderWriterLockSlim rwl = new ReaderWriterLockSlim();
+
 
         public OpinionMatrix(int size)
         {
@@ -60,21 +59,17 @@ namespace EBSL
                 {
                     return matrix[new Tuple<int, int>(x, y)];
                 }
-                else if (x > size || y > size)
-                {
-                    throw new IndexOutOfRangeException();
-                }
                 return Opinion.U;
             }
             set
             {
                 if (value != Opinion.U && x != y)
                 {
-                    lock(l)
+                    lock (matrix)
                     {
                         matrix[new Tuple<int, int>(x, y)] = value;
-                        xs[x].Add(y);
                         ys[y].Add(x);
+                        xs[x].Add(y);
                     }
                 }
                 else
@@ -101,7 +96,7 @@ namespace EBSL
             OpinionMatrix R_new = this.Clone() as OpinionMatrix;
             for (int i = 0; i < size; i++)
             {
-                Parallel.For(0, size, ((j) =>
+                    Parallel.For(0, size, ((j) =>
                 {
                     List<Opinion> sum = new List<Opinion>();
                     foreach (int k in A.ys[j])
@@ -124,18 +119,11 @@ namespace EBSL
 
         public float Compare(OpinionMatrix o)
         {
-            HashSet<Tuple<int, int>> cors = new HashSet<Tuple<int, int>>();
-            foreach(Tuple<int,int> t in this.matrix.Keys)
-            {
-                cors.Add(t);
-            }
-            foreach(Tuple<int,int> t in o.matrix.Keys)
-            {
-                cors.Add(t);
-            }
-            float compare = 0f;
+            Console.WriteLine("comparing");
             
-            Parallel.ForEach(cors, t =>
+            float compare = 0f;
+            //Assumption: this.matrix.keys is a subset of o.matrix.keys
+            Parallel.ForEach(o.matrix.Keys, t =>
             {
                 int x = t.Item1;
                 int y = t.Item2;

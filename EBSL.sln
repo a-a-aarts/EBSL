@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EBSL2", "EBSL\EBSL.csproj", "{EB2C1C64-563C-42F6-A899-C2314D9E3DD8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EBSL", "EBSL\EBSL.csproj", "{EB2C1C64-563C-42F6-A899-C2314D9E3DD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManager", "DataManager\DataManager.csproj", "{AB2D4210-E8F8-4573-9707-A4EE368559F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EBSLAnalyzer", "EBSLAnalyzer\EBSLAnalyzer.csproj", "{D181EA2D-0DDA-45C9-9A07-91C2A2BC8DF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{EB2C1C64-563C-42F6-A899-C2314D9E3DD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB2C1C64-563C-42F6-A899-C2314D9E3DD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB2C1C64-563C-42F6-A899-C2314D9E3DD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB2D4210-E8F8-4573-9707-A4EE368559F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB2D4210-E8F8-4573-9707-A4EE368559F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB2D4210-E8F8-4573-9707-A4EE368559F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB2D4210-E8F8-4573-9707-A4EE368559F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D181EA2D-0DDA-45C9-9A07-91C2A2BC8DF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D181EA2D-0DDA-45C9-9A07-91C2A2BC8DF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D181EA2D-0DDA-45C9-9A07-91C2A2BC8DF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D181EA2D-0DDA-45C9-9A07-91C2A2BC8DF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
